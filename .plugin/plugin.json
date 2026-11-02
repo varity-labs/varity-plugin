@@ -1,0 +1,13 @@
+{
+  "name": "varity",
+  "version": "1.0.0",
+  "description": "Deploy apps, AI agents, and LLMs to production from your AI editor, with the cost shown before you deploy.",
+  "author": {
+    "name": "Varity Labs",
+    "url": "https://github.com/varity-labs"
+  },
+  "homepage": "https://varity.so",
+  "repository": "https://github.com/varity-labs/varity-plugin",
+  "license": "MIT",
+  "keywords": ["varity","deploy","deployment","hosting","cloud","mcp","ai-agents","llm","gpu","paas"]
+}
