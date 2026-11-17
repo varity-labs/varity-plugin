@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "varity": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@varity-labs/mcp@2.3.22"]
+    }
+  }
+}

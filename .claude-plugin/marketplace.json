@@ -2,16 +2,16 @@
   "name": "varity-plugin",
   "owner": {
     "name": "Varity Labs",
-    "email": "hello@varity.so"
+    "email": "support@varity.so"
   },
   "plugins": [
     {
       "name": "varity",
       "source": "./",
-      "description": "Deploy apps, AI agents, and LLMs to production from your AI editor, with the cost shown before you deploy."
+      "description": "Deploy apps and AI agents to production from your AI editor, with the cost shown before you deploy."
     }
   ],
   "metadata": {
-    "description": "Official Varity plugin: deploy apps, AI agents, and LLMs from your AI editor."
+    "description": "Official Varity plugin: deploy apps and AI agents from your AI editor."
   }
 }
