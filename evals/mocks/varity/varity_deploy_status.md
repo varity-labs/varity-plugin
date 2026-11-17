@@ -31,5 +31,5 @@
     },
     "source": "varity_public_api:/api/deployments"
   },
-  "message": "Deployment dep_eval_001: failed (URL not assigned yet)"
+  "message": "Deployment dep_eval_001: latest run failed (expected_rejection, configuration_rejected; action check_configuration). Deployment status: failed (URL not assigned yet)"
 }

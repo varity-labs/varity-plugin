@@ -1,7 +1,8 @@
-// Validates root plugin.json and mcp.json against the sha256-pinned Agent Plugins 1.0.0 schemas.
+// Validates root plugin.json and mcp.json against the sha256-pinned Agent Plugins 1.0.0 schemas,
+// and checks that every MCP config pins the same server and every manifest has the same version.
 // CI and the Ops verifier policy run this file.
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,6 +21,35 @@ function run(command, args, options = {}) {
     process.exit(result.status ?? 1);
   }
 }
+
+const readJson = (file) => JSON.parse(readFileSync(join(root, file), 'utf8'));
+
+const exactPin = /^@varity-labs\/mcp@\d+\.\d+\.\d+$/;
+const pins = {};
+for (const file of ['.mcp.json', 'mcp.json', 'gemini-extension.json']) {
+  pins[file] = readJson(file).mcpServers?.varity?.args?.find((arg) => arg.startsWith('@varity-labs/mcp'));
+}
+for (const file of ['README.md', 'skills/deploy-with-varity/SKILL.md']) {
+  const found = readFileSync(join(root, file), 'utf8').match(/@varity-labs\/mcp(@[^\s`"',)]*)?/g) ?? [];
+  pins[file] = found.length > 0 && new Set(found).size === 1 ? found[0] : found.join(' | ') || undefined;
+}
+if (!Object.values(pins).every((pin) => exactPin.test(pin ?? '')) || new Set(Object.values(pins)).size !== 1) {
+  console.error('MCP server pins differ or are not an exact version:', pins);
+  process.exit(1);
+}
+const versions = Object.fromEntries(
+  ['plugin.json', '.claude-plugin/plugin.json', '.cursor-plugin/plugin.json', 'gemini-extension.json'].map((file) => [file, readJson(file).version]),
+);
+if (!Object.values(versions).every((v) => /^\d+\.\d+\.\d+$/.test(v ?? '')) || new Set(Object.values(versions)).size !== 1) {
+  console.error('Manifest versions differ or are not semver:', versions);
+  process.exit(1);
+}
+// Kiro activates a power from the root plugin.json keywords.
+if (!(readJson('plugin.json').keywords?.length > 0)) {
+  console.error('plugin.json has no keywords');
+  process.exit(1);
+}
+console.log(`MCP pin ${pins['mcp.json']} and manifest version ${versions['plugin.json']} agree across all files`);
 
 const dir = mkdtempSync(join(tmpdir(), 'agent-plugin-schemas-'));
 try {

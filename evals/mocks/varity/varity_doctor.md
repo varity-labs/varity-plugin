@@ -2,7 +2,8 @@
   "success": true,
   "data": {
     "ready": true,
-    "cli_deploy_ready": false,
+    "cli_deploy_ready": true,
+    "deploy_key_source": "env:VARITY_DEPLOY_KEY",
     "checks": [
       {
         "name": "Node.js",
@@ -18,9 +19,9 @@
       },
       {
         "name": "varitykit CLI",
-        "status": "fail",
-        "message": "varitykit CLI is not installed",
-        "fix": "pip install varitykit"
+        "status": "warn",
+        "message": "varitykit CLI is not installed; only varity_migrate needs it.",
+        "fix": "pipx install varitykit"
       },
       {
         "name": "Authentication",
@@ -33,11 +34,7 @@
         "message": "No GitHub authentication found; varity_create_repo requires a GitHub CLI session or GITHUB_TOKEN/GH_TOKEN environment variable.",
         "fix": "Run `gh auth login`, or set GITHUB_TOKEN/GH_TOKEN in the MCP process environment. Do not pass a token in chat."
       }
-    ],
-    "note": "Development tools (varity_build, varity_dev_server) are ready. Important: varity_deploy also requires a working varitykit CLI, fix the following 1 issue before deploying:",
-    "cli_issues": [
-      "pip install varitykit"
     ]
   },
-  "message": "Ready for development (init, build, dev server work). Fix 1 issue before deploying: pip install varitykit"
+  "message": "Environment is ready! All prerequisites are met, you can build, develop, and deploy apps with Varity."
 }
