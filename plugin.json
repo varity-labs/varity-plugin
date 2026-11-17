@@ -1,0 +1,33 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "varity",
+  "version": "1.0.0",
+  "description": "Deploy apps, AI agents, and LLMs to production from your AI editor, with the cost shown before you deploy.",
+  "author": {
+    "name": "Varity Labs",
+    "email": "support@varity.so",
+    "url": "https://github.com/varity-labs"
+  },
+  "homepage": "https://varity.so",
+  "repository": "https://github.com/varity-labs/varity-plugin",
+  "license": "MIT",
+  "keywords": ["varity", "deploy", "deployment", "hosting", "cloud", "mcp", "ai-agents", "llm", "gpu"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Varity",
+        "shortDescription": "Deploy apps, cost shown first",
+        "longDescription": "Deploy the current project, a container image, or an open-source app template to production on Varity from your AI coding agent. The agent checks your setup, shows the cost before anything is deployed, deploys, and shares the live URL. It can also read deployment status and runtime logs, and create and delete virtual machines. Deploys need a Varity account and a deploy key.",
+        "developerName": "Varity Labs",
+        "category": "Developer Tools",
+        "capabilities": ["Read", "Write"],
+        "websiteURL": "https://www.varity.so/",
+        "supportURL": "https://www.varity.so/contact/",
+        "privacyPolicyURL": "https://www.varity.so/privacy/",
+        "termsOfServiceURL": "https://www.varity.so/terms/",
+        "composerIcon": "./.claude-plugin/icon.png",
+        "logo": "./.claude-plugin/icon.png"
+      }
+    }
+  }
+}
