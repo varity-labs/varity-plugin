@@ -2,7 +2,7 @@
 
 Deploy apps, AI agents, and LLMs to production from your AI editor, with the cost shown before you deploy.
 
-[Varity](https://varity.so) is the Orchestration Cloud: one place to run applications, AI agents, and virtual machines. This plugin connects your AI coding agent to Varity through the [Varity MCP server](https://github.com/varity-labs/varity-mcp) and adds a `deploy-with-varity` skill that walks the agent through checking the setup, showing the cost, deploying, and sharing the live URL.
+[Varity](https://varity.so) is the Orchestration Cloud: one place to run applications, AI agents, and virtual machines. Traffic alone does not change an app's monthly price. This plugin connects your AI coding agent to Varity through the [Varity MCP server](https://github.com/varity-labs/varity-mcp) and adds a `deploy-with-varity` skill that walks the agent through checking the setup, showing the cost, deploying, and sharing the live URL.
 
 ## What's included
 
