@@ -2,7 +2,7 @@
   "mcpServers": {
     "varity": {
       "command": "npx",
-      "args": ["-y", "@varity-labs/mcp@2.3.22"]
+      "args": ["-y", "@varity-labs/mcp@2.3.27"]
     }
   }
 }

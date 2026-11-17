@@ -10,5 +10,5 @@
     "monthly_max_usd": 9,
     "billing_model": "reserved_monthly_max_prorated"
   },
-  "message": "web-app: up to $9/mo (USD) estimate returned by the current Varity pricing interface."
+  "message": "web-app: up to $9.00/month (monthly maximum, USD) estimate returned by the current Varity pricing interface."
 }

@@ -1,7 +1,8 @@
-// Validates root plugin.json and mcp.json against the sha256-pinned Agent Plugins 1.0.0 schemas.
+// Validates root plugin.json and mcp.json against the sha256-pinned Agent Plugins 1.0.0 schemas,
+// and checks that every MCP config pins the same server and every manifest has the same version.
 // CI and the Ops verifier policy run this file.
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,6 +21,32 @@ function run(command, args, options = {}) {
     process.exit(result.status ?? 1);
   }
 }
+
+const readJson = (file) => JSON.parse(readFileSync(join(root, file), 'utf8'));
+
+const pins = Object.fromEntries(
+  ['.mcp.json', 'mcp.json', 'gemini-extension.json'].map((file) => [file, readJson(file).mcpServers?.varity?.args?.join(' ')]),
+);
+for (const file of ['README.md', 'skills/deploy-with-varity/SKILL.md']) {
+  for (const [pin] of readFileSync(join(root, file), 'utf8').matchAll(/@varity-labs\/mcp@[\w.-]+/g)) pins[`${file} ${pin}`] = `-y ${pin}`;
+}
+if (!/^-y @varity-labs\/mcp@\d+\.\d+\.\d+$/.test(pins['mcp.json']) || new Set(Object.values(pins)).size !== 1) {
+  console.error('MCP server pins differ or are not an exact version:', pins);
+  process.exit(1);
+}
+const versions = Object.fromEntries(
+  ['plugin.json', '.claude-plugin/plugin.json', '.cursor-plugin/plugin.json', 'gemini-extension.json'].map((file) => [file, readJson(file).version]),
+);
+if (new Set(Object.values(versions)).size !== 1) {
+  console.error('Manifest versions differ:', versions);
+  process.exit(1);
+}
+// Kiro activates a power from the root plugin.json keywords.
+if (!(readJson('plugin.json').keywords?.length > 0)) {
+  console.error('plugin.json has no keywords');
+  process.exit(1);
+}
+console.log(`MCP pin ${pins['mcp.json']} and manifest version ${versions['plugin.json']} agree across all files`);
 
 const dir = mkdtempSync(join(tmpdir(), 'agent-plugin-schemas-'));
 try {

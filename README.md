@@ -8,9 +8,9 @@ Deploy apps and AI agents to production from your AI editor, with the cost shown
 
 | Part | What it does |
 |---|---|
-| `mcp.json`, `.mcp.json`, `gemini-extension.json` | Start the Varity MCP server (`npx -y @varity-labs/mcp@2.3.22`) with 26 tools: deploys, status, logs, open-source app templates, CPU virtual machines, and cost estimates |
+| `mcp.json`, `.mcp.json`, `gemini-extension.json` | Start the Varity MCP server (`npx -y @varity-labs/mcp@2.3.27`) with 26 tools: deploys, status, logs, open-source app and AI agent templates, CPU virtual machines, and cost estimates |
 | `skills/deploy-with-varity` | Tells the agent when and how to deploy with Varity |
-| `plugin.json`, `.claude-plugin`, `.cursor-plugin` | Plugin manifests: `plugin.json` for Agent Plugins clients such as GitHub Copilot CLI and VS Code, `.claude-plugin` for Claude Code, `.cursor-plugin` for Cursor |
+| `plugin.json`, `.claude-plugin`, `.cursor-plugin` | Plugin manifests: `plugin.json` for Agent Plugins clients such as Codex, GitHub Copilot CLI, VS Code and Kiro, `.claude-plugin` for Claude Code, `.cursor-plugin` for Cursor |
 
 ## Install
 
@@ -27,12 +27,28 @@ claude plugin install varity@varity-plugin
 gemini extensions install https://github.com/varity-labs/varity-plugin
 ```
 
+**Cursor, Codex, GitHub Copilot CLI, VS Code and Kiro:** these clients read the root Agent Plugins `plugin.json` and `mcp.json` (Cursor also reads `.cursor-plugin/plugin.json`). Add the plugin from the client's plugin settings with the repository URL `https://github.com/varity-labs/varity-plugin`. In Kiro, open the Powers panel, choose **Add Custom Power**, then **Import power from GitHub**.
+
+**Qwen Code, Junie and Factory Droid:** install from the same repository through their Claude Code plugin marketplace support.
+
+**Skill only:** add the `deploy-with-varity` skill to any agent that reads Agent Skills.
+
+```bash
+npx skills add varity-labs/varity-plugin --skill deploy-with-varity
+```
+
+The skill needs the Varity MCP server: install the plugin, or add the server to your MCP config as shown below, and set `VARITY_DEPLOY_KEY`.
+
 **Any MCP client:** add the server directly.
 
 ```json
 {
   "mcpServers": {
-    "varity": { "command": "npx", "args": ["-y", "@varity-labs/mcp@2.3.22"] }
+    "varity": {
+      "command": "npx",
+      "args": ["-y", "@varity-labs/mcp@2.3.27"],
+      "env": { "VARITY_DEPLOY_KEY": "<your deploy key>" }
+    }
   }
 }
 ```
@@ -40,8 +56,8 @@ gemini extensions install https://github.com/varity-labs/varity-plugin
 ## Requirements
 
 - Node.js 22.11 or later
-- A Varity account and a deploy key from the [developer portal](https://developer.store.varity.so). Export it as `VARITY_DEPLOY_KEY` in the shell that launches your editor or agent, then restart the editor or agent; or sign in once with `varitykit auth login`. MCP server 2.3.22 reads `VARITY_API_KEY` before `VARITY_DEPLOY_KEY`, so leave `VARITY_API_KEY` unset unless it holds your deploy key. Never paste the key into the chat.
-- The Varity CLI (`pipx install varitykit`) only for `varity_migrate` and, in MCP server 2.3.22, the template and agent tools
+- A Varity account and a deploy key from the [developer portal](https://developer.store.varity.so). Set it as `VARITY_DEPLOY_KEY` in the MCP config (`env`) or in the shell that launches your editor or agent, then restart the editor or agent; or sign in with the Varity CLI. When more than one is set, the server uses `VARITY_DEPLOY_KEY` first, then the CLI sign-in, then the legacy `VARITY_API_KEY`. Never paste the key into the chat.
+- The Varity CLI (`pipx install varitykit`) only for `varity_migrate`
 
 ## Data handling
 
