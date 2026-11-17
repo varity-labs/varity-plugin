@@ -22,7 +22,7 @@ Varity is the Orchestration Cloud: one place to run apps, AI agents, and virtual
    - Code in the workspace: the project must be pushed to a Git repository. If it is not, `varity_create_repo` can create a GitHub repository and push it. Then call `varity_deploy` with the project path (Varity reads the Git `origin` remote) or with `repo_url`. Varity detects the framework, builds it, and attaches the databases it needs.
    - A prebuilt container image: call `varity_deploy` with `image`.
    - An open-source app: call `varity_list_templates`, then `varity_template_info`, then `varity_deploy_template`.
-4. **Confirm it is live.** Call `varity_deploy_status` and share the live URL. If the build or deploy fails, `varity_deploy_status` shows the failure; explain it in plain words. For errors from an app that is already running, call `varity_deploy_logs` for its runtime logs.
+4. **Confirm it is live.** Call `varity_deploy_status` and share the live URL. If the build or deploy fails, `varity_deploy_status` shows the failed stage and an action code, not the build output; explain them in plain words and have the user build the project locally (for example `npm run build`, or `varity_build`) to see the exact error, fix it and deploy again. For errors from an app that is already running, call `varity_deploy_logs` for its runtime logs.
 5. **Manage it later.** Use `varity_redeploy` to reapply the saved configuration and `varity_delete_deployment` to stop the app and its billing. Environment variables and secrets are set in the Varity developer portal, never through the chat.
 
 ## What is supported
