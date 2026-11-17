@@ -11,7 +11,7 @@
   "homepage": "https://varity.so",
   "repository": "https://github.com/varity-labs/varity-plugin",
   "license": "MIT",
-  "keywords": ["varity", "deploy", "deployment", "hosting", "cloud", "mcp", "ai-agents", "llm", "gpu"],
+  "keywords": ["varity", "deploy", "deployment", "hosting", "cloud", "mcp", "ai-agents", "llm"],
   "extensions": {
     "com.openai": {
       "interface": {

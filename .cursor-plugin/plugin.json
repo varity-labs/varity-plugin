@@ -10,5 +10,5 @@
   "repository": "https://github.com/varity-labs/varity-plugin",
   "license": "MIT",
   "logo": ".claude-plugin/icon.png",
-  "keywords": ["varity","deploy","deployment","hosting","cloud","mcp","ai-agents","llm","gpu"]
+  "keywords": ["varity","deploy","deployment","hosting","cloud","mcp","ai-agents","llm"]
 }
