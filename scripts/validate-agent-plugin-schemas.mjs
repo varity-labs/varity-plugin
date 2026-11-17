@@ -24,21 +24,24 @@ function run(command, args, options = {}) {
 
 const readJson = (file) => JSON.parse(readFileSync(join(root, file), 'utf8'));
 
-const pins = Object.fromEntries(
-  ['.mcp.json', 'mcp.json', 'gemini-extension.json'].map((file) => [file, readJson(file).mcpServers?.varity?.args?.join(' ')]),
-);
-for (const file of ['README.md', 'skills/deploy-with-varity/SKILL.md']) {
-  for (const [pin] of readFileSync(join(root, file), 'utf8').matchAll(/@varity-labs\/mcp@[\w.-]+/g)) pins[`${file} ${pin}`] = `-y ${pin}`;
+const exactPin = /^@varity-labs\/mcp@\d+\.\d+\.\d+$/;
+const pins = {};
+for (const file of ['.mcp.json', 'mcp.json', 'gemini-extension.json']) {
+  pins[file] = readJson(file).mcpServers?.varity?.args?.find((arg) => arg.startsWith('@varity-labs/mcp'));
 }
-if (!/^-y @varity-labs\/mcp@\d+\.\d+\.\d+$/.test(pins['mcp.json']) || new Set(Object.values(pins)).size !== 1) {
+for (const file of ['README.md', 'skills/deploy-with-varity/SKILL.md']) {
+  const found = readFileSync(join(root, file), 'utf8').match(/@varity-labs\/mcp(@[^\s`"',)]*)?/g) ?? [];
+  pins[file] = found.length > 0 && new Set(found).size === 1 ? found[0] : found.join(' | ') || undefined;
+}
+if (!Object.values(pins).every((pin) => exactPin.test(pin ?? '')) || new Set(Object.values(pins)).size !== 1) {
   console.error('MCP server pins differ or are not an exact version:', pins);
   process.exit(1);
 }
 const versions = Object.fromEntries(
   ['plugin.json', '.claude-plugin/plugin.json', '.cursor-plugin/plugin.json', 'gemini-extension.json'].map((file) => [file, readJson(file).version]),
 );
-if (new Set(Object.values(versions)).size !== 1) {
-  console.error('Manifest versions differ:', versions);
+if (!Object.values(versions).every((v) => /^\d+\.\d+\.\d+$/.test(v ?? '')) || new Set(Object.values(versions)).size !== 1) {
+  console.error('Manifest versions differ or are not semver:', versions);
   process.exit(1);
 }
 // Kiro activates a power from the root plugin.json keywords.

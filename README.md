@@ -27,9 +27,7 @@ claude plugin install varity@varity-plugin
 gemini extensions install https://github.com/varity-labs/varity-plugin
 ```
 
-**Cursor, Codex, GitHub Copilot CLI, VS Code and Kiro:** these clients read the root Agent Plugins `plugin.json` and `mcp.json` (Cursor also reads `.cursor-plugin/plugin.json`). Add the plugin from the client's plugin settings with the repository URL `https://github.com/varity-labs/varity-plugin`. In Kiro, open the Powers panel, choose **Add Custom Power**, then **Import power from GitHub**.
-
-**Qwen Code, Junie and Factory Droid:** install from the same repository through their Claude Code plugin marketplace support.
+**Cursor, Codex, GitHub Copilot CLI, VS Code and Kiro:** these clients load Agent Plugins, which use the root `plugin.json` and `mcp.json`; Cursor also has its own manifest in `.cursor-plugin/plugin.json`. Add the plugin from the client's plugin settings with the repository URL `https://github.com/varity-labs/varity-plugin`. In Kiro, open the Powers panel, choose **Add Custom Power**, then **Import power from GitHub**.
 
 **Skill only:** add the `deploy-with-varity` skill to any agent that reads Agent Skills.
 
@@ -57,7 +55,7 @@ The skill needs the Varity MCP server: install the plugin, or add the server to 
 
 - Node.js 22.11 or later
 - A Varity account and a deploy key from the [developer portal](https://developer.store.varity.so). Set it as `VARITY_DEPLOY_KEY` in the MCP config (`env`) or in the shell that launches your editor or agent, then restart the editor or agent; or sign in with the Varity CLI. When more than one is set, the server uses `VARITY_DEPLOY_KEY` first, then the CLI sign-in, then the legacy `VARITY_API_KEY`. Never paste the key into the chat.
-- The Varity CLI (`pipx install varitykit`) only for `varity_migrate`
+- The Varity CLI (`pipx install varitykit`) only for `varity_migrate`, and optionally to sign in
 
 ## Data handling
 
