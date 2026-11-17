@@ -1,6 +1,6 @@
 # Varity plugin
 
-Deploy apps, AI agents, and LLMs to production from your AI editor, with the cost shown before you deploy.
+Deploy apps and AI agents to production from your AI editor, with the cost shown before you deploy.
 
 [Varity](https://varity.so) is the Orchestration Cloud: one place to run applications, AI agents, and virtual machines. Traffic alone does not change an app's monthly price. This plugin connects your AI coding agent to Varity through the [Varity MCP server](https://github.com/varity-labs/varity-mcp) and adds a `deploy-with-varity` skill that walks the agent through checking the setup, showing the cost, deploying, and sharing the live URL.
 
@@ -40,7 +40,7 @@ gemini extensions install https://github.com/varity-labs/varity-plugin
 ## Requirements
 
 - Node.js 22.11 or later
-- A Varity account and a deploy key from the [developer portal](https://developer.store.varity.so). Set it as `VARITY_DEPLOY_KEY` in the MCP server's environment, or sign in once with the Varity CLI. MCP server 2.3.22 reads `VARITY_API_KEY` before `VARITY_DEPLOY_KEY`, so leave `VARITY_API_KEY` unset unless it holds your deploy key. Never paste the key into the chat.
+- A Varity account and a deploy key from the [developer portal](https://developer.store.varity.so). Export it as `VARITY_DEPLOY_KEY` in the shell that launches your editor or agent, then restart the editor or agent; or sign in once with `varitykit auth login`. MCP server 2.3.22 reads `VARITY_API_KEY` before `VARITY_DEPLOY_KEY`, so leave `VARITY_API_KEY` unset unless it holds your deploy key. Never paste the key into the chat.
 - The Varity CLI (`pipx install varitykit`) only for `varity_migrate` and, in MCP server 2.3.22, the template and agent tools
 
 ## Data handling

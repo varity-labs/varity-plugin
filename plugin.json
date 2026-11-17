@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "varity",
   "version": "1.0.0",
-  "description": "Deploy apps, AI agents, and LLMs to production from your AI editor, with the cost shown before you deploy.",
+  "description": "Deploy apps and AI agents to production from your AI editor, with the cost shown before you deploy.",
   "author": {
     "name": "Varity Labs",
     "email": "support@varity.so",
@@ -11,7 +11,7 @@
   "homepage": "https://varity.so",
   "repository": "https://github.com/varity-labs/varity-plugin",
   "license": "MIT",
-  "keywords": ["varity", "deploy", "deployment", "hosting", "cloud", "mcp", "ai-agents", "llm"],
+  "keywords": ["varity", "deploy", "deployment", "hosting", "cloud", "mcp", "ai-agents"],
   "extensions": {
     "com.openai": {
       "interface": {

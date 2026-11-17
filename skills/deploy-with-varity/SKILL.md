@@ -15,7 +15,7 @@ Varity is the Orchestration Cloud: one place to run apps, AI agents, and virtual
 
 ## Workflow
 
-1. **Check the setup.** Call `varity_doctor` to confirm the environment is ready. Deploys need only a Varity deploy key: either `VARITY_DEPLOY_KEY` set in the MCP server's environment, or a sign-in with the Varity CLI. If no key is configured, call `varity_login`: it opens the developer portal settings page where the user creates a deploy key, then sets it as `VARITY_DEPLOY_KEY` or signs in with the Varity CLI. Never ask the user to paste the key into the chat.
+1. **Check the setup.** Call `varity_doctor` to confirm the environment is ready. Deploys need only a Varity deploy key: either `VARITY_DEPLOY_KEY` exported in the shell that launches the user's editor or agent (then restart the editor or agent), or a sign-in with `varitykit auth login`. If no key is configured, call `varity_login`: it opens the developer portal settings page where the user creates a deploy key to use in one of those two ways. Never ask the user to paste the key into the chat.
    The Varity CLI (`pipx install varitykit`) is needed only for `varity_migrate` and, in MCP server 2.3.22, the template and agent tools. When `varity_doctor` reports only the CLI as missing, a deploy of the user's own code or image can still go ahead.
 2. **Show the cost first.** Call `varity_cost_calculator` for the app and tell the user the cost, then wait until the user agrees before deploying. Apps are quoted as a monthly maximum; virtual machines bill by the hour until they are deleted.
 3. **Deploy.**
