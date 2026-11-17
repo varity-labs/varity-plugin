@@ -17,18 +17,6 @@ jobs:
         with:
           node-version: "22"
       - name: Claude plugin directory validation
-        run: npx -y @anthropic-ai/claude-code@2.1.326 plugin validate --strict --profile directory .
-      - name: Fetch Agent Plugins 1.0.0 schemas
-        run: |
-          mkdir -p "$RUNNER_TEMP/schemas"
-          curl -fsSL -o "$RUNNER_TEMP/schemas/plugin.schema.json" https://agent-plugins.org/schemas/1.0.0/plugin.schema.json
-          curl -fsSL -o "$RUNNER_TEMP/schemas/mcp.schema.json" https://agent-plugins.org/schemas/1.0.0/mcp.schema.json
-          cd "$RUNNER_TEMP/schemas"
-          printf '%s  %s\n' \
-            0a4aad95ce337878ad38802ebf0daa3fde76abe3f65400c86bcbb1ec0b3ab883 plugin.schema.json \
-            6539175bfcdf43085855183e86da40ea94b166547a72b47ae9a0a390516d3acb mcp.schema.json \
-            | sha256sum -c -
+        run: node scripts/validate-plugin.mjs
       - name: Validate root plugin.json and mcp.json against Agent Plugins 1.0.0
-        run: |
-          npx -y ajv-cli@5.0.0 validate --spec=draft2020 --strict=true -s "$RUNNER_TEMP/schemas/plugin.schema.json" -d plugin.json
-          npx -y ajv-cli@5.0.0 validate --spec=draft2020 --strict=true -s "$RUNNER_TEMP/schemas/mcp.schema.json" -d mcp.json
+        run: node scripts/validate-agent-plugin-schemas.mjs
