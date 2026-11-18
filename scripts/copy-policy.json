@@ -22,6 +22,7 @@
     { "test": "\\b(stays?|remains?|kept|keeps?)\\b[^.]{0,40}\\bprivate\\b|\\bprivate copy\\b", "allow": "do not tell the user that any option keeps their code private", "reason": "promises a private copy (unreleased)" },
     { "test": "\\b(can|will|i'?ll)\\s+upload\\s+(your|the)\\s+(project\\s+)?folder\\b|\\bupload(s|ing)?\\s+your\\s+(project\\s+)?folder\\b", "reason": "claims folder upload (unreleased)" },
     { "test": "\\b(hosted|remote)\\s+mcp\\b|\\bmcp\\.varity\\b", "reason": "claims a hosted MCP (unreleased)" },
+    { "test": "\\b\\d+\\s+(tools|templates|models|regions|providers)\\b", "reason": "cached capability count; counts fail closed (CHANGE-IMPACT: shipped-state claim)" },
     { "test": "\\bbrowser\\b", "allow": "where (it is |browser sign-in is )?available|isn'?t available|is not available|not available yet|browser tools", "reason": "browser sign-in is not released; mention it only as \"where it is available\" or \"isn't available\"" }
   ],
   "fixtures": {
@@ -46,7 +47,8 @@
       "Browser sign-in is now available everywhere.",
       "Sign in through your browser in one click.",
       "varity_login opens a browser tab where you sign in.",
-      "Connect with browser sign-in."
+      "Connect with browser sign-in.",
+      "Start the Varity MCP server with 30 tools."
     ],
     "mustPass": [
       "Use Cloudflare DNS for your custom domain.",
