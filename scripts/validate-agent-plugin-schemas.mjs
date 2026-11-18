@@ -1,5 +1,6 @@
 // Validates root plugin.json and mcp.json against the sha256-pinned Agent Plugins 1.0.0 schemas,
-// and checks that every MCP config pins the same server and every manifest has the same version.
+// checks that every MCP config pins the same server and every manifest has the same version,
+// and that the skill keeps the customer-facing lines its evals grade word for word.
 // CI and the Ops verifier policy run this file.
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
@@ -50,6 +51,14 @@ if (!(readJson('plugin.json').keywords?.length > 0)) {
   process.exit(1);
 }
 console.log(`MCP pin ${pins['mcp.json']} and manifest version ${versions['plugin.json']} agree across all files`);
+// The skill's customer-facing lines that evals grade word for word (PLAN-rev9 V9-9, J-14).
+const skill = readFileSync(join(root, 'skills/deploy-with-varity/SKILL.md'), 'utf8');
+for (const line of ["Traffic alone does not change an app's monthly price.", 'offer the paths that keep the code private first']) {
+  if (!skill.includes(line)) {
+    console.error(`skills/deploy-with-varity/SKILL.md is missing the required line: ${line}`);
+    process.exit(1);
+  }
+}
 
 const dir = mkdtempSync(join(tmpdir(), 'agent-plugin-schemas-'));
 try {
