@@ -27,7 +27,7 @@
         "name": "Authentication",
         "status": "fail",
         "message": "Not signed in to Varity yet (no deploy key found in VARITY_DEPLOY_KEY, the sign-in file ~/.varitykit/config.json or VARITY_API_KEY)",
-        "fix": "Call varity_login and tell the user: \"I'll open a browser tab: confirm there to connect Varity.\" No key is needed and nothing needs restarting. For CI or scripts, developers can instead create a deploy key at https://developer.store.varity.so/dashboard/settings?tab=api-keys and set it as VARITY_DEPLOY_KEY in the MCP server environment."
+        "fix": "Call varity_login to connect. If browser sign-in is switched on, it opens a browser tab and the user confirms there. If it answers SIGN_IN_UNAVAILABLE, tell the user: \"Browser sign-in isn't available right now. You can connect with a deploy key instead: create one at https://developer.store.varity.so/dashboard/settings?tab=api-keys and add it as VARITY_DEPLOY_KEY in your editor's MCP settings. Keep the key out of the chat.\""
       },
       {
         "name": "GitHub Token",
@@ -37,8 +37,8 @@
       }
     ],
     "next_steps": [
-      "Call varity_login and tell the user: \"I'll open a browser tab: confirm there to connect Varity.\" No key is needed and nothing needs restarting. For CI or scripts, developers can instead create a deploy key at https://developer.store.varity.so/dashboard/settings?tab=api-keys and set it as VARITY_DEPLOY_KEY in the MCP server environment."
+      "Call varity_login to connect. If browser sign-in is switched on, it opens a browser tab and the user confirms there. If it answers SIGN_IN_UNAVAILABLE, tell the user: \"Browser sign-in isn't available right now. You can connect with a deploy key instead: create one at https://developer.store.varity.so/dashboard/settings?tab=api-keys and add it as VARITY_DEPLOY_KEY in your editor's MCP settings. Keep the key out of the chat.\""
     ]
   },
-  "message": "Local development and deployment are not ready. Development: . Deployment: Call varity_login and tell the user: \"I'll open a browser tab: confirm there to connect Varity.\" No key is needed and nothing needs restarting. For CI or scripts, developers can instead create a deploy key at https://developer.store.varity.so/dashboard/settings?tab=api-keys and set it as VARITY_DEPLOY_KEY in the MCP server environment.."
+  "message": "Local development and deployment are not ready. Development: . Deployment: Call varity_login to connect. If browser sign-in is switched on, it opens a browser tab and the user confirms there. If it answers SIGN_IN_UNAVAILABLE, tell the user: \"Browser sign-in isn't available right now. You can connect with a deploy key instead: create one at https://developer.store.varity.so/dashboard/settings?tab=api-keys and add it as VARITY_DEPLOY_KEY in your editor's MCP settings. Keep the key out of the chat.\"."
 }

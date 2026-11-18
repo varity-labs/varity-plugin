@@ -53,13 +53,15 @@ if (!(readJson('plugin.json').keywords?.length > 0)) {
 console.log(`MCP pin ${pins['mcp.json']} and manifest version ${versions['plugin.json']} agree across all files`);
 // Lines the skills must keep: the exact traffic sentence the live-app eval grades word for word,
 // the instruction to offer private paths before publishing code, Chat and Build as the first path
-// without GitHub, no other hosting service, and /varity:env taking names only.
+// without GitHub, no other hosting service, the card-less route when a deploy key needs a payment
+// method, and /varity:env taking names only.
 const requiredLines = {
   'skills/deploy-with-varity/SKILL.md': [
     "Traffic alone does not change an app's monthly price.",
     'offer the paths that keep the code private first',
     'https://developer.store.varity.so/dashboard/ai-gateway?tab=chat&mode=build',
     'Never suggest another hosting service.',
+    'If the Portal asks for a payment method before it creates a deploy key, tell the user they can still put an app online without a card through Chat and Build',
   ],
   'skills/env/SKILL.md': ['Values stay in the `.env` file on this computer and never go through the chat.'],
 };
