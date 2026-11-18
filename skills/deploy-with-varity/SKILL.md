@@ -1,6 +1,6 @@
 ---
 name: deploy-with-varity
-description: Deploy the current project, an AI agent, or an open-source app template to production on Varity using the Varity MCP tools. Use when the user asks to deploy, host, ship, or put an app online, asks what hosting will cost, or asks why a Varity deployment failed.
+description: Deploy the current project, an AI agent, or an open-source app template to production on Varity using the Varity MCP tools. Use when the user asks to deploy, host, ship, or put an app online, asks what hosting will cost, asks why a Varity deployment failed, or wants to set an app's settings or secrets on Varity.
 license: MIT
 compatibility: Needs the Varity MCP server (npx -y @varity-labs/mcp@2.3.29, Node.js 22.11 or later), network access to varity.app, and a Varity deploy key in VARITY_DEPLOY_KEY (varity_login explains how to connect).
 metadata:
