@@ -3,6 +3,9 @@ name: env
 description: Set an app's settings and secrets on Varity from the project's .env file, by setting name only. Run as /varity:env followed by the project folder and the setting names.
 argument-hint: "<project folder> <SETTING_NAME> [SETTING_NAME ...]"
 disable-model-invocation: true
+license: MIT
+metadata:
+  source: https://github.com/varity-labs/varity-plugin/tree/main/skills/env
 ---
 
 Set settings on a Varity app from the project's `.env` file: $ARGUMENTS

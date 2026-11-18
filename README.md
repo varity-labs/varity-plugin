@@ -36,7 +36,7 @@ gemini extensions install https://github.com/varity-labs/varity-plugin
 npx skills add varity-labs/varity-plugin --skill deploy-with-varity
 ```
 
-The skill needs the Varity MCP server: install the plugin, or add the server to your MCP config as shown below.
+The skill needs the Varity MCP server: install the plugin, or add the server to your MCP config as shown below, and set `VARITY_DEPLOY_KEY`.
 
 **Any MCP client:** add the server directly.
 
@@ -45,7 +45,8 @@ The skill needs the Varity MCP server: install the plugin, or add the server to 
   "mcpServers": {
     "varity": {
       "command": "npx",
-      "args": ["-y", "@varity-labs/mcp@2.3.29"]
+      "args": ["-y", "@varity-labs/mcp@2.3.29"],
+      "env": { "VARITY_DEPLOY_KEY": "<your deploy key>" }
     }
   }
 }
@@ -54,7 +55,7 @@ The skill needs the Varity MCP server: install the plugin, or add the server to 
 ## Requirements
 
 - Node.js 22.11 or later
-- A Varity account. Ask your agent to connect Varity. Where browser sign-in is available, it opens a browser tab where you confirm, and the sign-in is saved on your computer in `~/.varitykit/config.json` (`varity_logout` revokes it on Varity and removes it). Where it is not available yet, and for CI or scripts, set a deploy key from the [developer portal](https://developer.store.varity.so/dashboard/settings?tab=api-keys) as `VARITY_DEPLOY_KEY` in the MCP config (`env`) or the shell that launches your editor or agent. When more than one is set, the server uses `VARITY_DEPLOY_KEY` first, then the saved sign-in, then the legacy `VARITY_API_KEY`. Never paste a key into the chat.
+- A Varity account and a deploy key. Create the key in the [developer portal](https://developer.store.varity.so/dashboard/settings?tab=api-keys) (Settings, Deploy keys), set it as `VARITY_DEPLOY_KEY` in the MCP config (`env`) or in the shell that launches your editor or agent, then restart the editor or agent. `varity_login` tells you how to connect. When more than one is set, the server uses `VARITY_DEPLOY_KEY` first, then the sign-in file `~/.varitykit/config.json`, then the legacy `VARITY_API_KEY`. Keep the key out of the chat.
 - The Varity CLI (`pipx install varitykit`) only for `varity_migrate`, and optionally to sign in
 
 ## Data handling

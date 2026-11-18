@@ -1,9 +1,8 @@
 // Validates root plugin.json and mcp.json against the sha256-pinned Agent Plugins 1.0.0 schemas,
-// checks that every MCP config pins the same server and every manifest has the same version,
-// that the skill keeps its required lines, and that no plugin text says what it must not.
-// CI and the Ops verifier policy run this file.
+// and checks that every MCP config pins the same server and every manifest has the same version.
+// Copy rules live in scripts/validate-copy.mjs. CI and the Ops verifier policy run this file.
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -51,55 +50,6 @@ if (!(readJson('plugin.json').keywords?.length > 0)) {
   process.exit(1);
 }
 console.log(`MCP pin ${pins['mcp.json']} and manifest version ${versions['plugin.json']} agree across all files`);
-// Lines the skills must keep: the exact traffic sentence the live-app eval grades word for word,
-// Chat and Build as the first path for a folder with GitHub only when the user asks (as varity-mcp
-// 2.3.29 UPLOAD_UNAVAILABLE says), the card-less route when a deploy key needs a payment method,
-// and /varity:env taking names only.
-const requiredLines = {
-  'skills/deploy-with-varity/SKILL.md': [
-    "Traffic alone does not change an app's monthly price.",
-    "lead with Varity's Chat and Build",
-    'https://developer.store.varity.so/dashboard/ai-gateway?tab=chat&mode=build',
-    'Bring up GitHub only if the user asks',
-    'Do not offer to upload or send a folder, even if a tool suggests trying it',
-    'If the Portal asks for a payment method before it creates a deploy key, tell the user they can still put an app online without a card through Chat and Build',
-  ],
-  'skills/env/SKILL.md': ['Values stay in the `.env` file on this computer and never go through the chat.'],
-};
-for (const [file, lines] of Object.entries(requiredLines)) {
-  const text = existsSync(join(root, file)) ? readFileSync(join(root, file), 'utf8') : '';
-  for (const line of lines) {
-    if (!text.includes(line)) {
-      console.error(`${file} is missing the required line: ${line}`);
-      process.exit(1);
-    }
-  }
-}
-
-// What the plugin's own texts must not say: directory policy forbids naming or ruling out other
-// hosting services (every path ends in a Varity action), and the copy claims nothing unreleased:
-// no GitHub-only lead, no folder upload or private copy, no hosted MCP, browser sign-in only where available.
-const shippedTexts = [
-  'README.md', 'plugin.json', '.claude-plugin/plugin.json', '.claude-plugin/marketplace.json', '.cursor-plugin/plugin.json', 'gemini-extension.json',
-  ...readdirSync(join(root, 'skills')).map((skill) => `skills/${skill}/SKILL.md`),
-];
-const forbidden = [
-  /never suggest/i, /another hosting/i, /other host/i,
-  /\b(?:vercel|netlify|railway|render\.com|heroku|fly\.io|cloudflare)\b/i,
-  /can only (?:build|put)/i, /stored publicly/i,
-  /stays? private/i, /private copy/i, /hosted mcp/i,
-];
-for (const file of shippedTexts) {
-  readFileSync(join(root, file), 'utf8').split('\n').forEach((line, i) => {
-    const hit = forbidden.find((pattern) => pattern.test(line))
-      ?? (/browser sign-in/i.test(line) && !/available/i.test(line) ? 'browser sign-in without "available"' : null);
-    if (hit) {
-      console.error(`${file}:${i + 1} must not say ${hit}: ${line.trim()}`);
-      process.exit(1);
-    }
-  });
-}
-
 const dir = mkdtempSync(join(tmpdir(), 'agent-plugin-schemas-'));
 try {
   for (const { file } of schemas) {
