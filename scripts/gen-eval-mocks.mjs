@@ -1,13 +1,14 @@
 // Regenerates the eval mocks under evals/ from the PUBLISHED @varity-labs/mcp version that .mcp.json pins.
-// It packs that version from npm, installs its runtime dependencies, runs its dist/index.js over stdio against
-// a local stub of the Varity API (VARITY_GATEWAY_URL), and writes each tool's answer to the mock file an eval reads.
-// The stub only supplies the API data each case is written for; every message is the server's own text.
-// Two machine-dependent values are fixed so the output is stable: the Node.js and npm versions the doctor reports,
-// and the HTTP probe latency against the stub.
-// Usage: node scripts/gen-eval-mocks.mjs   (CI then fails on `git diff --exit-code evals`)
+// It installs that version with `npm ci` from scripts/eval-mocks/package-lock.json (the server and its whole
+// dependency tree pinned, so a new upstream sdk or zod release cannot change the output), runs its dist/index.js
+// over stdio against a local stub of the Varity API (VARITY_GATEWAY_URL), and writes each tool's answer to the mock
+// file an eval reads. The stub only supplies the API data each case is written for; every message is the server's
+// own text. Two machine-dependent values are fixed: the Node.js and npm versions the doctor reports, and the HTTP
+// probe latency against the stub.
+// Usage: node scripts/gen-eval-mocks.mjs   (CI then fails if `git status --porcelain evals` is not empty)
 import { execFileSync, spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,13 +17,23 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 const pin = JSON.parse(readFileSync(join(root, '.mcp.json'), 'utf8')).mcpServers.varity.args.find((arg) => arg.startsWith('@varity-labs/mcp@'));
 const FIXED = { node: 'v22.22.3', npm: '10.9.8' };
 
+const lockDir = join(root, 'scripts/eval-mocks');
+const locked = JSON.parse(readFileSync(join(lockDir, 'package.json'), 'utf8')).dependencies['@varity-labs/mcp'];
+if (pin !== `@varity-labs/mcp@${locked}`) {
+  console.error(`.mcp.json pins ${pin} but scripts/eval-mocks/package.json pins ${locked}: update it, run npm install --package-lock-only there, and commit both.`);
+  process.exit(1);
+}
+const CALL_TIMEOUT_MS = 30_000;
+
 const work = mkdtempSync(join(tmpdir(), 'varity-eval-mocks-'));
-const npm = (args, cwd) => execFileSync('npm', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] });
-const tarball = npm(['pack', pin, '--silent'], work).trim().split('\n').pop();
-execFileSync('tar', ['-xzf', tarball], { cwd: work });
-const pkg = join(work, 'package');
-npm(['install', '--omit=dev', '--ignore-scripts', '--no-audit', '--no-fund', '--silent'], pkg);
-console.log(`packed ${pin} -> ${tarball}`);
+const children = [];
+let stub;
+try {
+copyFileSync(join(lockDir, 'package.json'), join(work, 'package.json'));
+copyFileSync(join(lockDir, 'package-lock.json'), join(work, 'package-lock.json'));
+execFileSync('npm', ['ci', '--omit=dev', '--ignore-scripts', '--no-audit', '--no-fund', '--silent'], { cwd: work, stdio: ['ignore', 'ignore', 'inherit'] });
+const pkg = join(work, 'node_modules/@varity-labs/mcp');
+console.log(`installed ${pin} from scripts/eval-mocks/package-lock.json`);
 
 let phase = 'deploy'; // 'deploy': runs answer deploying; 'status': runs answer their terminal state
 const runs = {
@@ -37,7 +48,7 @@ const deployments = {
 };
 
 let gateway = '';
-const stub = createServer((req, res) => {
+stub = createServer((req, res) => {
   let body = '';
   req.on('data', (c) => (body += c));
   req.on('end', () => {
@@ -78,7 +89,7 @@ const stub = createServer((req, res) => {
       return send(200, { profiles: [{ id: 'mp-cpu-small', name: 'CPU small', vcpu: 2, memory_gb: 4, disk_gb: 40, hourly_usd: 0.05, os_images: [{ id: 'os-ubuntu-24-04', name: 'Ubuntu 24.04' }], default_os_image: 'os-ubuntu-24-04' }] });
     }
     if (req.method === 'POST' && url === '/api/pricing/machine-quote') {
-      return send(200, { quote_token: 'qt_eval', hourly_usd: 0.05, authorization_usd: 1.2, valid_until: '2027-11-17T03:00:00Z' });
+      return send(200, { quote_token: 'qt_eval', hourly_usd: 0.05, authorization_usd: 1.2, valid_until: '2099-11-17T03:00:00Z' });
     }
     if (req.method === 'POST' && url === '/api/machines') return send(202, { machine_id: 'vm_eval_001', name: parsed.name, status: 'provisioning' });
     return send(404, { code: 'not_found', message: `stub has no ${req.method} ${url}` });
@@ -111,6 +122,7 @@ function session(env) {
     env: { PATH, HOME: home, VARITY_GATEWAY_URL: gateway, ...env },
     stdio: ['pipe', 'pipe', 'ignore'],
   });
+  children.push(child);
   let buf = '';
   const waiters = new Map();
   child.stdout.on('data', (d) => {
@@ -128,8 +140,10 @@ function session(env) {
     }
   });
   let id = 0;
-  const call = (method, params) => new Promise((resolve) => {
-    const n = ++id; waiters.set(n, resolve);
+  const call = (method, params) => new Promise((resolve, reject) => {
+    const n = ++id;
+    const timer = setTimeout(() => { waiters.delete(n); reject(new Error(`${method} ${params?.name ?? ''}: no answer within ${CALL_TIMEOUT_MS} ms`)); }, CALL_TIMEOUT_MS);
+    waiters.set(n, (msg) => { clearTimeout(timer); resolve(msg); });
     child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id: n, method, params }) + '\n');
   });
   return {
@@ -150,7 +164,7 @@ const write = (file, text) => { mkdirSync(dirname(join(root, file)), { recursive
 
 const s = session({ VARITY_DEPLOY_KEY: 'eval-dummy-not-a-key' });
 await s.init();
-writeFileSync(join(root, 'evals/mocks/varity/_tools.json'), JSON.stringify((await s.call('tools/list', {})).result, null, 1));
+writeFileSync(join(root, 'evals/mocks/varity/_tools.json'), JSON.stringify((await s.call('tools/list', {})).result, null, 1)); // byte-identical to the committed file, which has no trailing newline
 write('evals/mocks/varity/varity_deploy.md', await s.tool('varity_deploy', { repo_url: 'https://github.com/acme/todo-api' }));
 write('evals/live-app/mocks/varity/varity_deploy.md', await s.tool('varity_deploy', { repo_url: 'https://github.com/acme/notes-app', app_name: 'notes-app' }));
 write('evals/private-repo/mocks/varity/varity_deploy.md', await s.tool('varity_deploy', { repo_url: 'https://github.com/acme/private-crm', app_name: 'private-crm' }));
@@ -172,6 +186,12 @@ await noKey.init();
 write('evals/connect/mocks/varity/varity_doctor.md', await noKey.tool('varity_doctor', {}));
 write('evals/connect/mocks/varity/varity_login.md', await noKey.tool('varity_login', {}));
 noKey.close();
-stub.close();
-rmSync(work, { recursive: true, force: true });
 console.log(`wrote eval mocks from ${pin}`);
+} catch (err) {
+  console.error(`eval mock generation failed: ${err.message}`);
+  process.exitCode = 1;
+} finally {
+  for (const child of children) child.kill();
+  stub?.close();
+  rmSync(work, { recursive: true, force: true });
+}

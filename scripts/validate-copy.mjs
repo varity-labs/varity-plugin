@@ -10,14 +10,20 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 const policy = JSON.parse(readFileSync(join(root, 'scripts/copy-policy.json'), 'utf8'));
 const rules = policy.forbidden.map(({ test, allow, reason }) => ({
   test: new RegExp(test, 'i'),
-  allow: allow ? new RegExp(allow, 'i') : null,
+  allow: allow ? new RegExp(allow, 'gi') : null,
   reason,
 }));
 const problems = [];
+const read = (file) => {
+  if (existsSync(join(root, file))) return readFileSync(join(root, file), 'utf8');
+  problems.push(`${file} is missing`);
+  return '';
+};
 
 const violation = (line) => {
   const text = line.replace(/\s+/g, ' ');
-  return rules.find((rule) => rule.test.test(text) && !(rule.allow && rule.allow.test(text)));
+  // Remove only the allowed spans, then test what remains, so an allowed phrase cannot shield the rest of the line.
+  return rules.find((rule) => rule.test.test(rule.allow ? text.replace(rule.allow, ' ') : text));
 };
 
 for (const line of policy.fixtures.mustFlag) {
@@ -36,21 +42,21 @@ const texts = policy.texts.flatMap((pattern) => {
     .map((entry) => `${dir}/${entry.name}/${file}`);
 });
 for (const file of texts) {
-  readFileSync(join(root, file), 'utf8').split('\n').forEach((line, i) => {
+  read(file).split('\n').forEach((line, i) => {
     const rule = violation(line);
     if (rule) problems.push(`${file}:${i + 1} ${rule.reason}: ${line.trim()}`);
   });
 }
 
 for (const [file, lines] of Object.entries(policy.required)) {
-  const text = readFileSync(join(root, file), 'utf8');
+  const text = read(file);
   for (const line of lines) {
     if (!text.includes(line)) problems.push(`${file} is missing the required line: ${line}`);
   }
 }
 
 if (problems.length > 0) {
-  console.error(problems.join('\n'));
+  console.error([...new Set(problems)].join('\n'));
   process.exit(1);
 }
 console.log(`Copy policy: ${policy.fixtures.mustFlag.length} must-flag and ${policy.fixtures.mustPass.length} must-pass fixtures hold; ${texts.length} texts clean; required lines present`);
