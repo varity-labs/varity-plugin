@@ -11,4 +11,4 @@ The arguments are a project folder and setting names such as `OPENAI_API_KEY`. V
 
 1. Find the app's name: ask the user, or call `varity_deploy_status` to list the apps.
 2. Tell the user which setting names will be sent, that the app restarts, and that a restart sets aside another monthly maximum until it settles. Wait for the user to agree.
-3. Call `varity_set_env` once with the app, the absolute project folder path and the setting names. If it times out, call `varity_deploy_status` instead of calling it again.
+3. Call `varity_set_env` once with the app, the absolute project folder path, the setting names, and `confirm: true` because the user agreed in step 2. If the settings are in another file such as `.env.production`, pass its name as `env_file`. If it times out, call `varity_deploy_status` instead of calling it again.

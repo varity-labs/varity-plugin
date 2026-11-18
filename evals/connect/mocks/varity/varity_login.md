@@ -1,5 +1,9 @@
 {
   "success": true,
-  "data": { "status": "connected", "source": "config:~/.varitykit/config.json" },
-  "message": "Varity is connected on this computer. You can deploy now."
+  "data": {
+    "authenticated": true,
+    "signed_in": true,
+    "source": "sign-in file"
+  },
+  "message": "Varity is connected on this computer. Tell the user it worked and continue their task; no restart is needed."
 }

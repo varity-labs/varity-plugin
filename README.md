@@ -54,7 +54,7 @@ The skill needs the Varity MCP server: install the plugin, or add the server to 
 ## Requirements
 
 - Node.js 22.11 or later
-- A Varity account. Ask your agent to connect Varity: it opens a browser tab where you confirm, and the sign-in is saved on your computer in `~/.varitykit/config.json` (`varity_logout` removes it). For CI or scripts, set a deploy key from the [developer portal](https://developer.store.varity.so/dashboard/settings?tab=api-keys) as `VARITY_DEPLOY_KEY` in the MCP config (`env`) or the shell that launches your editor or agent. When more than one is set, the server uses `VARITY_DEPLOY_KEY` first, then the saved sign-in, then the legacy `VARITY_API_KEY`. Never paste a key into the chat.
+- A Varity account. Ask your agent to connect Varity: it opens a browser tab where you confirm, and the sign-in is saved on your computer in `~/.varitykit/config.json` (`varity_logout` revokes it on Varity and removes it). For CI or scripts, set a deploy key from the [developer portal](https://developer.store.varity.so/dashboard/settings?tab=api-keys) as `VARITY_DEPLOY_KEY` in the MCP config (`env`) or the shell that launches your editor or agent. When more than one is set, the server uses `VARITY_DEPLOY_KEY` first, then the saved sign-in, then the legacy `VARITY_API_KEY`. Never paste a key into the chat.
 - The Varity CLI (`pipx install varitykit`) only for `varity_migrate`, and optionally to sign in
 
 ## Data handling
