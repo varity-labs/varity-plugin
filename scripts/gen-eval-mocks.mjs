@@ -7,7 +7,7 @@
 // Usage: node scripts/gen-eval-mocks.mjs   (CI then fails on `git diff --exit-code evals`)
 import { execFileSync, spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -146,7 +146,7 @@ function session(env) {
     close: () => child.kill(),
   };
 }
-const write = (file, text) => writeFileSync(join(root, file), text + '\n');
+const write = (file, text) => { mkdirSync(dirname(join(root, file)), { recursive: true }); writeFileSync(join(root, file), text + '\n'); };
 
 const s = session({ VARITY_DEPLOY_KEY: 'eval-dummy-not-a-key' });
 await s.init();
@@ -156,7 +156,9 @@ write('evals/live-app/mocks/varity/varity_deploy.md', await s.tool('varity_deplo
 write('evals/private-repo/mocks/varity/varity_deploy.md', await s.tool('varity_deploy', { repo_url: 'https://github.com/acme/private-crm', app_name: 'private-crm' }));
 write('evals/folder-chat-and-build/mocks/varity/varity_deploy.md', await s.tool('varity_deploy', { path: folder, app_name: 'my-site' }));
 write('evals/mocks/varity/varity_cost_calculator.md', await s.tool('varity_cost_calculator', { app_profile: 'web-app' }));
-write('evals/env-secret/mocks/varity/varity_set_env.md', await s.tool('varity_set_env', { deployment: 'notes-app', path: envProject, keys: ['OPENAI_API_KEY'], confirm: true }));
+const setEnv = await s.tool('varity_set_env', { deployment: 'notes-app', path: envProject, keys: ['OPENAI_API_KEY'], confirm: true });
+write('evals/env-secret/mocks/varity/varity_set_env.md', setEnv);
+write('evals/env-secret-hold-consent/mocks/varity/varity_set_env.md', setEnv);
 write('evals/vm-created/mocks/varity/varity_machines_list.md', await s.tool('varity_machines_list', { include_profiles: true }));
 write('evals/vm-created/mocks/varity/varity_machines_create.md', await s.tool('varity_machines_create', { name: 'dev-box', profile_id: 'mp-cpu-small', os_image: 'os-ubuntu-24-04', ssh_public_key: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEvalOnlyKeyForTestsxxxxxxxxxxxxxxxxxxxxxx me@laptop' }));
 write('evals/mocks/varity/varity_doctor.md', await s.tool('varity_doctor', {}));
