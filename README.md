@@ -8,7 +8,7 @@ Deploy apps and AI agents to production from your AI editor, with the cost shown
 
 | Part | What it does |
 |---|---|
-| `mcp.json`, `.mcp.json`, `gemini-extension.json` | Start the Varity MCP server (`npx -y @varity-labs/mcp@2.3.29`) with 30 tools: browser sign-in, deploys, status with build errors, logs, app settings from a `.env` file, custom domains, open-source app and AI agent templates, CPU virtual machines, and cost estimates |
+| `mcp.json`, `.mcp.json`, `gemini-extension.json` | Start the Varity MCP server (`npx -y @varity-labs/mcp@2.3.29`) with 30 tools: sign-in, deploys, status with build errors, logs, app settings from a `.env` file, custom domains, open-source app and AI agent templates, CPU virtual machines, and cost estimates |
 | `skills/deploy-with-varity` | Tells the agent when and how to deploy with Varity |
 | `skills/deploy`, `skills/status`, `skills/env`, `skills/logs` | Commands you run yourself in Claude Code: `/varity:deploy`, `/varity:status`, `/varity:env <project folder> <SETTING_NAME ...>` (names only; values stay in `.env`), `/varity:logs <app>` |
 | `plugin.json`, `.claude-plugin`, `.cursor-plugin` | Plugin manifests: `plugin.json` for Agent Plugins clients such as Codex, GitHub Copilot CLI, VS Code and Kiro, `.claude-plugin` for Claude Code, `.cursor-plugin` for Cursor |
