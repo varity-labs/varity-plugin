@@ -52,9 +52,15 @@ if (!(readJson('plugin.json').keywords?.length > 0)) {
 }
 console.log(`MCP pin ${pins['mcp.json']} and manifest version ${versions['plugin.json']} agree across all files`);
 // Lines the skills must keep: the exact traffic sentence the live-app eval grades word for word,
-// the instruction to offer private paths before publishing code, and /varity:env taking names only.
+// the instruction to offer private paths before publishing code, Chat and Build as the first path
+// without GitHub, no other hosting service, and /varity:env taking names only.
 const requiredLines = {
-  'skills/deploy-with-varity/SKILL.md': ["Traffic alone does not change an app's monthly price.", 'offer the paths that keep the code private first'],
+  'skills/deploy-with-varity/SKILL.md': [
+    "Traffic alone does not change an app's monthly price.",
+    'offer the paths that keep the code private first',
+    'https://developer.store.varity.so/dashboard/ai-gateway?tab=chat&mode=build',
+    'Never suggest another hosting service.',
+  ],
   'skills/env/SKILL.md': ['Values stay in the `.env` file on this computer and never go through the chat.'],
 };
 for (const [file, lines] of Object.entries(requiredLines)) {
