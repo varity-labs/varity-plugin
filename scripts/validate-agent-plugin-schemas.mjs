@@ -3,7 +3,7 @@
 // and that the skill keeps its required lines.
 // CI and the Ops verifier policy run this file.
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -51,13 +51,19 @@ if (!(readJson('plugin.json').keywords?.length > 0)) {
   process.exit(1);
 }
 console.log(`MCP pin ${pins['mcp.json']} and manifest version ${versions['plugin.json']} agree across all files`);
-// Lines the skill must keep: the exact traffic sentence the live-app eval grades word for word,
-// and the instruction to offer private paths before publishing code.
-const skill = readFileSync(join(root, 'skills/deploy-with-varity/SKILL.md'), 'utf8');
-for (const line of ["Traffic alone does not change an app's monthly price.", 'offer the paths that keep the code private first']) {
-  if (!skill.includes(line)) {
-    console.error(`skills/deploy-with-varity/SKILL.md is missing the required line: ${line}`);
-    process.exit(1);
+// Lines the skills must keep: the exact traffic sentence the live-app eval grades word for word,
+// the instruction to offer private paths before publishing code, and /varity:env taking names only.
+const requiredLines = {
+  'skills/deploy-with-varity/SKILL.md': ["Traffic alone does not change an app's monthly price.", 'offer the paths that keep the code private first'],
+  'skills/env/SKILL.md': ['Values stay in the `.env` file on this computer and never go through the chat.'],
+};
+for (const [file, lines] of Object.entries(requiredLines)) {
+  const text = existsSync(join(root, file)) ? readFileSync(join(root, file), 'utf8') : '';
+  for (const line of lines) {
+    if (!text.includes(line)) {
+      console.error(`${file} is missing the required line: ${line}`);
+      process.exit(1);
+    }
   }
 }
 
