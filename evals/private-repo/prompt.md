@@ -1,5 +1,5 @@
 ---
-description: When Varity cannot read a private repository, the agent explains it plainly and offers the paths that keep the code private before any option to publish it.
+description: When Varity cannot read a private repository, the agent explains it plainly and leads with Varity's Chat and Build before any option to publish the code.
 max_turns: 16
 allowed_tools: [Read, Glob, Grep, Skill]
 ---

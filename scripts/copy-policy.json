@@ -1,0 +1,122 @@
+{
+  "description": "Copy rules for the plugin's own texts (README, manifests, skills). Whitespace is collapsed, every span matching `allow` is removed, and the line fails a forbidden rule when `test` still matches what remains. This rejects known phrasings only; the LLM-graded evals and review are the enforcement of record.",
+  "texts": [
+    "README.md",
+    "plugin.json",
+    ".claude-plugin/plugin.json",
+    ".claude-plugin/marketplace.json",
+    ".cursor-plugin/plugin.json",
+    "gemini-extension.json",
+    "skills/*/SKILL.md"
+  ],
+  "required": {
+    "skills/deploy-with-varity/SKILL.md": [
+      "Traffic alone does not change an app's monthly price.",
+      "lead with Varity's Chat and Build",
+      "https://developer.store.varity.so/dashboard/ai-gateway?tab=chat&mode=build",
+      "Bring up GitHub only if the user asks",
+      "Do not offer to upload or send a folder, even if a tool suggests trying it",
+      "If the Portal asks for a payment method before it creates a deploy key, tell the user they can still put an app online without a card through Chat and Build"
+    ],
+    "skills/env/SKILL.md": [
+      "Values stay in the `.env` file on this computer and never go through the chat."
+    ]
+  },
+  "forbidden": [
+    {
+      "test": "\\b(never|don'?t|do not)\\s+(suggest|recommend|mention|name|offer)\\b[^.]{0,60}\\b(host|hosting|hosts|provider|platform|cloud)\\b",
+      "reason": "rules out other hosts; say nothing about alternatives and end in a Varity action"
+    },
+    {
+      "test": "\\bnever suggest\\b",
+      "reason": "\"never suggest X\" phrasing violates directory policy"
+    },
+    {
+      "test": "\\b(another|other|different|alternative)\\s+(hosting|host|hosts|provider|platform|cloud)\\b",
+      "reason": "refers to other hosts"
+    },
+    {
+      "test": "\\b(vercel|netlify|railway|render|heroku|fly(\\.io)?|aws|amazon web services|google cloud|gcp|azure|digitalocean|github pages|replit|lovable|bolt|supabase|firebase)\\b",
+      "allow": "\\bon the fly\\b",
+      "reason": "names another hosting service"
+    },
+    {
+      "test": "\\bcloudflare\\b",
+      "allow": "\\bcloudflare dns\\b",
+      "reason": "names another hosting service (Cloudflare DNS for a custom domain is fine)"
+    },
+    {
+      "test": "\\bcan only (build|put|deploy|take)\\b|\\bonly (builds?|deploys?|accepts?|takes?)\\b[^.]{0,20}\\bpublic\\b|\\bstored publicly\\b|\\bneeds? (your )?code on github\\b|\\bvaritys? needs github\\b",
+      "allow": "do not say varity needs github",
+      "reason": "leads with GitHub-only; for a folder lead with Chat and Build"
+    },
+    {
+      "test": "\\b(stays?|remains?|kept|keeps?)\\b[^.]{0,40}\\bprivate\\b|\\bprivate copy\\b",
+      "allow": "do not tell the user that any option keeps their code private|\\bkeep the key private\\b",
+      "reason": "promises a private copy (unreleased)"
+    },
+    {
+      "test": "\\b(can|will|i'?ll)\\s+upload\\s+(your|the)\\s+(project\\s+)?folder\\b|\\bupload(s|ing)?\\s+your\\s+(project\\s+)?folder\\b",
+      "reason": "claims folder upload (unreleased)"
+    },
+    {
+      "test": "\\b(hosted|remote)\\s+mcp\\b|\\bmcp\\.varity\\b",
+      "reason": "claims a hosted MCP (unreleased)"
+    },
+    {
+      "test": "\\b(\\d+\\+?|one|two|three|four|five|six|seven|eight|nine|ten|twenty|thirty|forty|fifty|dozens of|hundreds of)\\s+(tools|templates|models|regions|providers)\\b",
+      "reason": "cached capability count; counts fail closed (CHANGE-IMPACT: shipped-state claim)"
+    },
+    {
+      "test": "\\bbrowser\\s+(sign-?in|tab|login)\\b|\\bthrough (your|the) browser\\b|\\b(sign|log)s?\\s+(you\\s+)?in\\b[^.]{0,40}\\bbrowser\\b",
+      "allow": "\\bbrowser sign-in (isn'?t|is not) available( right now| yet)?|\\bwhere browser sign-in is available\\b",
+      "reason": "browser sign-in is not released; mention it only as \"browser sign-in isn't available\" or \"where browser sign-in is available\""
+    }
+  ],
+  "fixtures": {
+    "mustFlag": [
+      "Never suggest another hosting service.",
+      "Do not suggest any other hosting provider.",
+      "Don't recommend a different host.",
+      "Try Render or Fly.",
+      "Deploy it to AWS, Google Cloud, Azure, DigitalOcean or GitHub Pages instead.",
+      "You could use Replit, Lovable, Bolt or Supabase.",
+      "Try Vercel.",
+      "Host it on Cloudflare Pages.",
+      "Varity can only put a website online from code that's stored publicly on GitHub.",
+      "Varity only builds from public GitHub repositories.",
+      "Varity needs your code on GitHub first; push it to a public repo.",
+      "Your code stays private.",
+      "Your code remains private.",
+      "Your code is kept private on Varity.",
+      "Varity can upload your project folder directly.",
+      "Connect through the remote MCP server at mcp.varity.so.",
+      "Use the Hosted  MCP.",
+      "Browser sign-in is now available everywhere.",
+      "Sign in through your browser in one click.",
+      "varity_login opens a browser tab where you sign in.",
+      "Connect with browser sign-in.",
+      "Start the Varity MCP server with 30 tools.",
+      "Your code stays private. Do not tell the user that any option keeps their code private.",
+      "Browser sign-in is live today (browser tools run on your machine).",
+      "Varity can only deploy public code, so do not say Varity needs GitHub.",
+      "Deploy to Vercel on the fly.",
+      "Host it on Cloudflare Pages and point DNS there.",
+      "Start the server with thirty tools.",
+      "It ships 30+ tools."
+    ],
+    "mustPass": [
+      "Use Cloudflare DNS for your custom domain.",
+      "Point your other hostname at Varity with a CNAME.",
+      "If it says browser sign-in isn't available, connect with a deploy key instead.",
+      "Build, dev server, dependency install and browser tools run on your machine.",
+      "Do not offer to upload or send a folder, even if a tool suggests trying it, and do not tell the user that any option keeps their code private.",
+      "Bring up GitHub only if the user asks: until then, do not offer GitHub or a public repository as a way forward and do not say Varity needs GitHub.",
+      "Pass `visibility: \"public\"`, because the tool creates a private repository by default.",
+      "Varity reads the Git `origin` remote; for a public GitHub repository it detects the framework.",
+      "Keep the key out of the chat.",
+      "Open the developer portal in your browser to create a deploy key.",
+      "Keep the key private and out of the chat."
+    ]
+  }
+}

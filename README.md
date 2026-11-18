@@ -8,8 +8,9 @@ Deploy apps and AI agents to production from your AI editor, with the cost shown
 
 | Part | What it does |
 |---|---|
-| `mcp.json`, `.mcp.json`, `gemini-extension.json` | Start the Varity MCP server (`npx -y @varity-labs/mcp@2.3.27`) with 26 tools: deploys, status, logs, open-source app and AI agent templates, CPU virtual machines, and cost estimates |
+| `mcp.json`, `.mcp.json`, `gemini-extension.json` | Start the Varity MCP server (`npx -y @varity-labs/mcp@2.3.29`) with tools for sign-in, deploys, status with build errors, logs, app settings from a `.env` file, custom domains, open-source app and AI agent templates, CPU virtual machines, and cost estimates |
 | `skills/deploy-with-varity` | Tells the agent when and how to deploy with Varity |
+| `skills/deploy`, `skills/status`, `skills/env`, `skills/logs` | Commands you run yourself in Claude Code: `/varity:deploy`, `/varity:status`, `/varity:env <project folder> <SETTING_NAME ...>` (names only; values stay in `.env`), `/varity:logs <app>` |
 | `plugin.json`, `.claude-plugin`, `.cursor-plugin` | Plugin manifests: `plugin.json` for Agent Plugins clients such as Codex, GitHub Copilot CLI, VS Code and Kiro, `.claude-plugin` for Claude Code, `.cursor-plugin` for Cursor |
 
 ## Install
@@ -44,7 +45,7 @@ The skill needs the Varity MCP server: install the plugin, or add the server to 
   "mcpServers": {
     "varity": {
       "command": "npx",
-      "args": ["-y", "@varity-labs/mcp@2.3.27"],
+      "args": ["-y", "@varity-labs/mcp@2.3.29"],
       "env": { "VARITY_DEPLOY_KEY": "<your deploy key>" }
     }
   }
@@ -54,14 +55,15 @@ The skill needs the Varity MCP server: install the plugin, or add the server to 
 ## Requirements
 
 - Node.js 22.11 or later
-- A Varity account and a deploy key from the [developer portal](https://developer.store.varity.so). Set it as `VARITY_DEPLOY_KEY` in the MCP config (`env`) or in the shell that launches your editor or agent, then restart the editor or agent; or sign in with the Varity CLI. When more than one is set, the server uses `VARITY_DEPLOY_KEY` first, then the CLI sign-in, then the legacy `VARITY_API_KEY`. Never paste the key into the chat.
+- A Varity account and a deploy key. Create the key in the [developer portal](https://developer.store.varity.so/dashboard/settings?tab=api-keys) (Settings, Deploy keys), set it as `VARITY_DEPLOY_KEY` in the MCP config (`env`) or in the shell that launches your editor or agent, then restart the editor or agent. `varity_login` tells you how to connect. When more than one is set, the server uses `VARITY_DEPLOY_KEY` first, then the sign-in file `~/.varitykit/config.json`, then the legacy `VARITY_API_KEY`. Keep the key out of the chat.
 - The Varity CLI (`pipx install varitykit`) only for `varity_migrate`, and optionally to sign in
 
 ## Data handling
 
-- **Personal data:** the plugin stores no personal data. The MCP server reads your Varity deploy key from `VARITY_DEPLOY_KEY` (or `VARITY_API_KEY`) or the Varity CLI sign-in file and sends it only to the Varity API.
+- **Personal data:** the plugin stores no personal data. The MCP server reads your Varity key from `VARITY_DEPLOY_KEY` (or `VARITY_API_KEY`) or the sign-in file `~/.varitykit/config.json` and sends it only to the Varity API.
 - **What is sent where:**
   - The Varity API at https://varity.app receives deploy, status, logs, pricing and balance requests.
+  - `varity_set_env` reads only the setting names you list from the project's `.env` file and sends their values only to the Varity API; values never appear in the chat or in the tool's output.
   - Docs search reads https://docs.varity.so.
   - Build, dev server, dependency install and browser tools run on your machine.
   - `varity_create_repo` uses your own GitHub credentials against GitHub.

@@ -8,5 +8,5 @@
     "public_status": "deploying",
     "outcome": null
   },
-  "message": "Deploy accepted (id dep_eval_001, run run_eval_001, status deploying). Track its terminal outcome with varity_deploy_status using this id; status returns the same id."
+  "message": "Building now; usually live in under a minute. Deploy accepted (id dep_eval_001, run run_eval_001, status deploying). Track its terminal outcome with varity_deploy_status using this id; status returns the same id."
 }
