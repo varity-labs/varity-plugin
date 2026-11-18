@@ -2,20 +2,21 @@
   "success": true,
   "data": {
     "ready": true,
+    "connected": true,
     "cli_deploy_ready": true,
     "deploy_key_source": "env:VARITY_DEPLOY_KEY",
     "checks": [
       {
         "name": "Node.js",
         "status": "pass",
-        "version": "v22.19.0",
-        "message": "Node.js v22.19.0 detected"
+        "version": "v22.22.3",
+        "message": "Node.js v22.22.3 detected"
       },
       {
         "name": "npm",
         "status": "pass",
-        "version": "10.9.3",
-        "message": "npm 10.9.3 detected"
+        "version": "10.9.8",
+        "message": "npm 10.9.8 detected"
       },
       {
         "name": "varitykit CLI",

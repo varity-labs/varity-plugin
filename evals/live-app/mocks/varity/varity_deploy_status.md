@@ -6,8 +6,8 @@
       "name": "notes-app",
       "appName": "notes-app",
       "runtime": "dynamic",
-      "status": "live",
       "url": "https://notes-app.varity.app",
+      "status": "live",
       "timestamp": "2026-11-17T02:10:00Z",
       "billing": {
         "state": "active",
@@ -21,7 +21,8 @@
       "run_status": "live",
       "http_probe": {
         "outcome": "reachable",
-        "status": 200
+        "http_status": 200,
+        "latency_ms": 1
       }
     },
     "source": "varity_public_api:/api/deployments"
