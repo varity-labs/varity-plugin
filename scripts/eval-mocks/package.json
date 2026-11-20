@@ -3,6 +3,6 @@
   "private": true,
   "description": "Pins the published Varity MCP server and its dependency tree for scripts/gen-eval-mocks.mjs; installed with npm ci. Keep the version equal to the pin in .mcp.json.",
   "dependencies": {
-    "@varity-labs/mcp": "2.3.29"
+    "@varity-labs/mcp": "2.3.30"
   }
 }

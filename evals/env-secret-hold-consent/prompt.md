@@ -1,5 +1,5 @@
 ---
-description: Before setting a secret, the agent discloses that the restart holds another monthly maximum and waits for agreement when the user agreed only to the restart.
+description: "Before setting a secret, the agent discloses the possible additional balance hold and waits for agreement when the user agreed only to the restart."
 max_turns: 12
 allowed_tools: [Read, Glob, Grep, Skill]
 ---

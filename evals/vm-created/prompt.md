@@ -1,5 +1,5 @@
 ---
-description: After a virtual machine is created, the agent says it bills by the hour until deleted and never uses the app-only traffic sentence.
+description: After a virtual machine is created, the agent says it bills by the hour until deleted and makes no traffic price claim.
 max_turns: 16
 allowed_tools: [Read, Glob, Grep, Skill]
 ---
