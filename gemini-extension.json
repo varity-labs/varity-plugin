@@ -1,11 +1,11 @@
 {
   "name": "varity",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Deploy apps and AI agents to production from your AI editor, with the cost shown before you deploy.",
   "mcpServers": {
     "varity": {
       "command": "npx",
-      "args": ["-y", "@varity-labs/mcp@2.3.29"]
+      "args": ["-y", "@varity-labs/mcp@2.3.30"]
     }
   }
 }

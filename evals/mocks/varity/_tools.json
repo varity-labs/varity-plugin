@@ -36,7 +36,7 @@
   {
    "name": "varity_cost_calculator",
    "title": "Cost Calculator",
-   "description": "Request a current deployment-price estimate from the Varity public pricing interface. Use whenever a developer asks what a Varity deployment costs. Pass `subdomain` for a live deployment's current billing projection (needs a deploy key), or `app_profile` for a pre-deploy estimate (no sign-in needed). Profiles: static-site (alias static), web-app, web-app-db, ai-agent-cpu; an unknown profile returns the current list. All amounts are USD.",
+   "description": "Request a current deployment-price estimate from the Varity public pricing interface. Use whenever a developer asks what a Varity deployment costs. Pass `subdomain` for a live deployment's current billing projection (needs a deploy key), or `app_profile` for a pre-deploy estimate. When signed in, a static site is priced for your account, because whether it is free depends on how many static sites you already run; otherwise no static price is stated. Profiles: static-site (alias static), web-app, web-app-db, ai-agent-cpu; an unknown profile returns the current list. All amounts are USD.",
    "inputSchema": {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -324,17 +324,17 @@
   {
    "name": "varity_deploy",
    "title": "Deploy to Production",
-   "description": "Submit a Git repository, a local project folder, or a prebuilt container image to Varity's deployment owner. A folder with no public GitHub repository is tried as a direct upload, which Varity may not have switched on yet: never promise the upload or private code before it succeeds; if it answers UPLOAD_UNAVAILABLE, Varity can't take a folder from this computer yet. The control plane detects the framework, selects hosting, builds, and manages lifecycle state. Use this when a developer wants to deploy, publish, ship, or make their app live. If the developer wants to deploy a certified template rather than their own code, use varity_deploy_template instead. To ship new code for an app that is already deployed, push it and call varity_deploy again with the same app_name: the same owner and workload shape updates that app in place at the latest commit (varity_redeploy does not pick up new commits). For an uploaded folder, call varity_deploy again with the same path and app_name: it uploads the folder again. To stop a deployment and its billing, use varity_delete_deployment.",
+   "description": "Submit a Git repository, a local project folder, or a prebuilt container image to Varity's deployment owner. A folder without a readable GitHub repository is saved as a private copy Varity keeps (deleted with the deployment) and built. If it answers UPLOAD_UNAVAILABLE, Varity can't take a folder from this computer yet. The control plane detects the framework, selects hosting, builds, and manages lifecycle state. Use this when a developer wants to deploy, publish, ship, or make their app live. If the developer wants to deploy a certified template rather than their own code, use varity_deploy_template instead. To ship new code for an app that is already deployed, push it and call varity_deploy again with the same app_name: the same owner and workload shape updates that app in place at the latest commit (varity_redeploy does not pick up new commits). For a folder, call varity_deploy again with the same path and app_name: it sends the folder again and updates that app in place. To stop a deployment and its billing, use varity_delete_deployment.",
    "inputSchema": {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "properties": {
      "path": {
-      "description": "Absolute path to the project directory (e.g. '/home/user/my-app'). Used to read the Git `origin` remote when repo_url and image are omitted, and as the folder to try uploading when the project has no public GitHub repository. If omitted, the MCP server's working directory is used (which is rarely the correct project root).",
+      "description": "Absolute path to the project directory (e.g. '/home/user/my-app'). Used to read the Git `origin` remote when repo_url and image are omitted; a folder without a readable GitHub repository is saved as a private copy Varity keeps (deleted with the deployment) and built. If omitted, the MCP server's working directory is used (which is rarely the correct project root).",
       "type": "string"
      },
      "source": {
-      "description": "Set to \"upload\" to try sending the project folder at path straight to Varity. Tried automatically when the folder has no Git origin remote or its repository is private. Folder upload may not be switched on yet: then nothing is uploaded or charged and the answer says so.",
+      "description": "Set to \"upload\" to try sending the project folder at path straight to Varity. Tried automatically when the folder has no Git origin remote or its repository is private. If Varity cannot take the folder yet, nothing is sent or charged and the answer says so.",
       "type": "string",
       "enum": [
        "upload"
@@ -457,7 +457,7 @@
   {
    "name": "varity_delete_deployment",
    "title": "Request Deletion of a Deployment",
-   "description": "Request deletion of an existing Varity deployment by id or app name. Returns as soon as the delete is accepted, usually with status deleting; it does not wait. Billing stop is proven only when varity_deploy_status shows status deleted and billing.state stopped, so poll that tool before telling the developer billing has stopped. Use this when a developer says 'stop my <name>', 'shut down my deployment', 'I'm done with <name>', 'delete <name>', or when they no longer need a running app or agent. The durable operation independently reconciles route removal, reserved hardware release, and billing stop. Use varity_deploy_status or list deployments at https://developer.store.varity.so/dashboard to confirm the deployment first if the developer is unsure.",
+   "description": "Request deletion of an existing Varity deployment by id or app name. Returns as soon as the delete is accepted, usually with status deleting; it does not wait. Billing stop is proven only when varity_deploy_status shows status deleted and billing.state stopped, so poll that tool before telling the developer billing has stopped. Use this when a developer says 'stop my <name>', 'shut down my deployment', 'I'm done with <name>', 'delete <name>', or when they no longer need a running app or agent. The durable operation independently reconciles route removal, reserved hardware release, and billing stop. If Varity saved a private copy of a folder for this app, that copy is deleted too. Use varity_deploy_status or list deployments at https://developer.store.varity.so/dashboard to confirm the deployment first if the developer is unsure.",
    "inputSchema": {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -486,7 +486,7 @@
   {
    "name": "varity_set_env",
    "title": "Set App Settings From .env",
-   "description": "Set environment variables (settings such as API keys) on a deployed app from the project's own .env file. Pass the app, the project folder and the setting NAMES; the values are read from the file on this computer and never go through chat. Never ask the user to type a value into chat: ask them to put it in .env. This restarts the app, and restarting holds one more month's maximum, released when billing next settles, usually within 20 minutes, so tell the user before calling. The user is asked to confirm the names and the restart before anything is sent. Call it once; do not repeat it on a timeout (check varity_deploy_status instead).",
+   "description": "Set environment variables (settings such as API keys) on a deployed app from the project's own .env file. Pass the app, the project folder and the setting NAMES; the values are read from the file on this computer and never go through chat. Never ask the user to type a value into chat: ask them to put it in .env. Before calling, tell the user the setting names, that the app restarts, and that restarting may temporarily hold additional balance until billing settles; ask them to confirm all three. The user is asked to confirm the names, the restart and the possible additional hold before anything is sent. Call it once; do not repeat it on a timeout (check varity_deploy_status instead).",
    "inputSchema": {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -516,7 +516,7 @@
       "type": "string"
      },
      "confirm": {
-      "description": "Set to true only after the user agreed to the setting names and the restart (needed when this editor cannot ask the user itself).",
+      "description": "Set to true only after the user agreed to the setting names, the restart and the possible additional hold (needed when this editor cannot ask the user itself).",
       "type": "boolean"
      }
     },

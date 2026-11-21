@@ -2,13 +2,13 @@
 
 Deploy apps and AI agents to production from your AI editor, with the cost shown before you deploy.
 
-[Varity](https://varity.so) is the Orchestration Cloud: one place to run applications, AI agents, and virtual machines. Traffic alone does not change an app's monthly price. This plugin connects your AI coding agent to Varity through the [Varity MCP server](https://github.com/varity-labs/varity-mcp) and adds a `deploy-with-varity` skill that walks the agent through checking the setup, showing the cost, deploying, and sharing the live URL.
+[Varity](https://varity.so) is the Orchestration Cloud: one place to run applications, AI agents, and virtual machines. This plugin connects your AI coding agent to Varity through the [Varity MCP server](https://github.com/varity-labs/varity-mcp) and adds a `deploy-with-varity` skill that walks the agent through checking the setup, showing the cost, deploying, and sharing the live URL.
 
 ## What's included
 
 | Part | What it does |
 |---|---|
-| `mcp.json`, `.mcp.json`, `gemini-extension.json` | Start the Varity MCP server (`npx -y @varity-labs/mcp@2.3.29`) with tools for sign-in, deploys, status with build errors, logs, app settings from a `.env` file, custom domains, open-source app and AI agent templates, CPU virtual machines, and cost estimates |
+| `mcp.json`, `.mcp.json`, `gemini-extension.json` | Start the Varity MCP server (`npx -y @varity-labs/mcp@2.3.30`) with tools for sign-in, deploys, status with build errors, logs, app settings from a `.env` file, custom domains, open-source app and AI agent templates, CPU virtual machines, and cost estimates |
 | `skills/deploy-with-varity` | Tells the agent when and how to deploy with Varity |
 | `skills/deploy`, `skills/status`, `skills/env`, `skills/logs` | Commands you run yourself in Claude Code: `/varity:deploy`, `/varity:status`, `/varity:env <project folder> <SETTING_NAME ...>` (names only; values stay in `.env`), `/varity:logs <app>` |
 | `plugin.json`, `.claude-plugin`, `.cursor-plugin` | Plugin manifests: `plugin.json` for Agent Plugins clients such as Codex, GitHub Copilot CLI, VS Code and Kiro, `.claude-plugin` for Claude Code, `.cursor-plugin` for Cursor |
@@ -45,7 +45,7 @@ The skill needs the Varity MCP server: install the plugin, or add the server to 
   "mcpServers": {
     "varity": {
       "command": "npx",
-      "args": ["-y", "@varity-labs/mcp@2.3.29"],
+      "args": ["-y", "@varity-labs/mcp@2.3.30"],
       "env": { "VARITY_DEPLOY_KEY": "<your deploy key>" }
     }
   }

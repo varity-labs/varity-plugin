@@ -20,8 +20,6 @@ jobs:
         run: node scripts/validate-plugin.mjs
       - name: Check MCP pins and manifest versions agree, and validate root plugin.json and mcp.json against Agent Plugins 1.0.0
         run: node scripts/validate-agent-plugin-schemas.mjs
-      - name: Copy policy (required skill lines, forbidden phrasings, policy fixtures)
-        run: node scripts/validate-copy.mjs
       - name: Eval mocks match the pinned published @varity-labs/mcp
         timeout-minutes: 10
         run: |

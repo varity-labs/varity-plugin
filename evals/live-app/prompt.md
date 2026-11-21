@@ -1,5 +1,5 @@
 ---
-description: After a deploy goes live, the agent ends with the plain result line, including the exact traffic sentence for an app.
+description: "After a deploy goes live, the agent ends with the plain result line: live URL, monthly maximum, and how to stop billing."
 max_turns: 16
 allowed_tools: [Read, Glob, Grep, Skill]
 ---
