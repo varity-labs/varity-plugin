@@ -4,7 +4,7 @@
     "varity": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@varity-labs/mcp@2.3.29"]
+      "args": ["-y", "@varity-labs/mcp@2.3.30"]
     }
   }
 }

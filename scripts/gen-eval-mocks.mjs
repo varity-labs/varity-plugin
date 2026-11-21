@@ -36,11 +36,18 @@ const pkg = join(work, 'node_modules/@varity-labs/mcp');
 console.log(`installed ${pin} from scripts/eval-mocks/package-lock.json`);
 
 let phase = 'deploy'; // 'deploy': runs answer deploying; 'status': runs answer their terminal state
+let hostedFolderRoute = false;
+let folderSaved = false;
+const FOLDER_COMMIT = 'a'.repeat(40);
+const FOLDER_REPOSITORY = { id: 101, owner: 'varity-hosted', name: 'u1a2b3c4d5e6f7a8-my-site', full_name: 'varity-hosted/u1a2b3c4d5e6f7a8-my-site', default_branch: 'main' };
 const runs = {
   run_eval_001: { public_status: 'failed', outcome: { classification: 'expected_rejection', stage: 'build', code: 'configuration_rejected', action_code: 'check_configuration', diagnostic_code: null, terminal_at: '2026-11-17T01:42:10Z' } },
   run_eval_002: { public_status: 'live', outcome: null },
+  run_eval_folder: { public_status: 'live', outcome: null },
 };
 const deployments = {
+  'my-site': { id: 'dep_eval_folder', app_name: 'my-site', appName: 'my-site', runtime: 'static', status: 'live', url: 'FOLDER_PROBE', createdAt: '2026-11-17T02:10:00Z', run_id: 'run_eval_folder', outcome: null,
+    billing: { state: 'active', currency: 'USD', accrued_this_month_usd: '0.00', billing_basis: 'static_free', active_seconds_this_month: 0 } },
   'todo-api': { id: 'dep_eval_001', app_name: 'todo-api', appName: 'todo-api', runtime: 'dynamic', status: 'failed', createdAt: '2026-11-17T01:40:00Z', run_id: 'run_eval_001', outcome: runs.run_eval_001.outcome,
     billing: { state: null, currency: 'USD', accrued_this_month_usd: 'unavailable', billing_basis: 'unavailable', active_seconds_this_month: null } },
   'notes-app': { id: 'dep_eval_002', app_name: 'notes-app', appName: 'notes-app', runtime: 'dynamic', status: 'live', url: 'PROBE', createdAt: '2026-11-17T02:10:00Z', run_id: 'run_eval_002', outcome: null,
@@ -56,12 +63,22 @@ stub = createServer((req, res) => {
     const parsed = body && req.headers['content-type'] === 'application/json' ? JSON.parse(body) : {};
     const url = req.url;
     let m;
-    if (url === '/probe') { res.writeHead(200, { 'content-type': 'text/html' }); return res.end('ok'); }
+    if (url === '/probe' || url === '/probe-folder') { res.writeHead(200, { 'content-type': 'text/html' }); return res.end('ok'); }
     // Browser sign-in is not released: no authorization server, so varity_login answers SIGN_IN_UNAVAILABLE.
     if (url.startsWith('/.well-known/') || url.startsWith('/api/oauth/')) return send(404, { error: 'not_found' });
-    // Folder upload is not released: no upload route, so a folder deploy answers UPLOAD_UNAVAILABLE.
+    // R1 uses the hosted-copy fallback: raw archive uploads stay unavailable in both cases.
     if (req.method === 'POST' && url === '/api/deployments/sources') return send(404, { code: 'uploads_unavailable', message: 'Not found' });
+    if (req.method === 'POST' && url === '/api/github/hosted-repositories') {
+      return hostedFolderRoute ? send(201, { repository: FOLDER_REPOSITORY }) : send(404, { code: 'not_found', message: 'Not found' });
+    }
+    if (req.method === 'POST' && url === '/api/github/changes' && hostedFolderRoute) {
+      return send(201, { branch: parsed.branch, commit_sha: FOLDER_COMMIT, base_sha: 'b'.repeat(40) });
+    }
     if (req.method === 'POST' && url === '/api/deployments') {
+      if (parsed.app_name === 'my-site' && hostedFolderRoute) {
+        folderSaved = true;
+        return send(202, { id: 'dep_eval_folder', app_name: 'my-site', run_id: 'run_eval_folder' });
+      }
       if (String(parsed.repo_url).includes('private-crm')) return send(422, { code: 'source_repository_unreadable', message: 'Repository is private or does not exist.' });
       const n = { 'todo-api': '001', 'notes-app': '002' }[parsed.app_name] ?? '009';
       return send(202, { id: `dep_eval_${n}`, app_name: parsed.app_name, run_id: `run_eval_${n}` });
@@ -77,9 +94,11 @@ stub = createServer((req, res) => {
       return send(202, { status: 'redeploying', run_id: 'run_eval_003', env: { count: Object.keys(parsed.env ?? {}).length } });
     }
     if (req.method === 'GET' && (m = url.match(/^\/api\/deployments\/([^/?]+)$/))) {
-      const d = deployments[decodeURIComponent(m[1])];
-      if (!d) return send(404, { code: 'not_found', message: 'Deployment not found.' });
-      return send(200, { deployment: { ...d, ...(d.url ? { url: `${gateway}/probe` } : {}) } });
+      const name = decodeURIComponent(m[1]);
+      const d = name === 'my-site' && !folderSaved ? null : deployments[name];
+      // The owner-scoped locator's served code; generic not_found is unavailable to W2.
+      if (!d) return send(404, { code: 'deployment_not_found', message: 'Deployment not found.' });
+      return send(200, { deployment: { ...d, ...(d.url ? { url: `${gateway}/${name === 'my-site' ? 'probe-folder' : 'probe'}` } : {}) } });
     }
     if (req.method === 'GET' && url.startsWith('/api/pricing?profile=web-app')) {
       return send(200, { profile: 'web-app', currency: 'USD', monthly_max_usd: 9, billing_model: 'reserved_monthly_max_prorated' });
@@ -108,6 +127,7 @@ const PATH = `${dirname(process.execPath)}:/usr/bin:/bin`;
 
 function normalize(text) {
   return text
+    .replaceAll(`${gateway}/probe-folder`, 'https://my-site.varity.app')
     .replaceAll(`${gateway}/probe`, 'https://notes-app.varity.app')
     .replace(/"latency_ms": \d+/g, '"latency_ms": 1')
     .replace(/Node\.js v\d+\.\d+\.\d+/g, `Node.js ${FIXED.node}`)
@@ -169,6 +189,8 @@ write('evals/mocks/varity/varity_deploy.md', await s.tool('varity_deploy', { rep
 write('evals/live-app/mocks/varity/varity_deploy.md', await s.tool('varity_deploy', { repo_url: 'https://github.com/acme/notes-app', app_name: 'notes-app' }));
 write('evals/private-repo/mocks/varity/varity_deploy.md', await s.tool('varity_deploy', { repo_url: 'https://github.com/acme/private-crm', app_name: 'private-crm' }));
 write('evals/folder-chat-and-build/mocks/varity/varity_deploy.md', await s.tool('varity_deploy', { path: folder, app_name: 'my-site' }));
+hostedFolderRoute = true;
+write('evals/folder-saved/mocks/varity/varity_deploy.md', await s.tool('varity_deploy', { path: folder, app_name: 'my-site' }));
 write('evals/mocks/varity/varity_cost_calculator.md', await s.tool('varity_cost_calculator', { app_profile: 'web-app' }));
 const setEnv = await s.tool('varity_set_env', { deployment: 'notes-app', path: envProject, keys: ['OPENAI_API_KEY'], confirm: true });
 write('evals/env-secret/mocks/varity/varity_set_env.md', setEnv);
@@ -179,6 +201,7 @@ write('evals/mocks/varity/varity_doctor.md', await s.tool('varity_doctor', {}));
 phase = 'status';
 write('evals/mocks/varity/varity_deploy_status.md', await s.tool('varity_deploy_status', { deployment_id: 'todo-api' }));
 write('evals/live-app/mocks/varity/varity_deploy_status.md', await s.tool('varity_deploy_status', { deployment_id: 'notes-app' }));
+write('evals/folder-saved/mocks/varity/varity_deploy_status.md', await s.tool('varity_deploy_status', { deployment_id: 'my-site' }));
 s.close();
 
 const noKey = session({});

@@ -1,6 +1,6 @@
 // Validates root plugin.json and mcp.json against the sha256-pinned Agent Plugins 1.0.0 schemas,
 // and checks that every MCP config pins the same server and every manifest has the same version.
-// Copy rules live in scripts/validate-copy.mjs. CI and the Ops verifier policy run this file.
+// Runs the existing copy policy before metadata checks. CI and the Ops verifier policy use this composed entrypoint.
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -23,6 +23,8 @@ function run(command, args, options = {}) {
 }
 
 const readJson = (file) => JSON.parse(readFileSync(join(root, file), 'utf8'));
+
+run('node', ['scripts/validate-copy.mjs']);
 
 const exactPin = /^@varity-labs\/mcp@\d+\.\d+\.\d+$/;
 const pins = {};
